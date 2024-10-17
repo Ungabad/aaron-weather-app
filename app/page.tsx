@@ -2,21 +2,44 @@
 import { useState } from "react";
 
 export default function Home() {
-  // State to store the city input and weather data
+  // State to store the city input, weather data, lat/lon, and error message
   const [city, setCity] = useState<string>("");
   const [weather, setWeather] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch weather data from the OpenWeather API
+  // Function to fetch latitude and longitude for a given city
+  const fetchGeoCoordinates = async () => {
+    try {
+      const response = await fetch(
+        `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}`
+      );
+      const data = await response.json();
+      if (data.length > 0) {
+        return { lat: data[0].lat, lon: data[0].lon }; // return lat and lon
+      } else {
+        throw new Error("City not found");
+      }
+    } catch (err) {
+      throw new Error("Failed to fetch coordinates");
+    }
+  };
+
+  // Fetch weather data from the OpenWeather API using lat/lon
   const fetchWeather = async () => {
     setError(null); // Reset any previous error
     try {
+      // Fetch lat and lon first
+      const { lat, lon } = await fetchGeoCoordinates();
+
+      // Fetch weather data using the obtained lat/lon
       const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}`
+        `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}`
       );
+
       if (!response.ok) {
-        throw new Error("City not found"); // Handle error when city is not found
+        throw new Error("Weather data not found");
       }
+
       const data = await response.json();
       console.log(data);
       setWeather(data); // Set the fetched weather data
@@ -48,9 +71,12 @@ export default function Home() {
       {error && <p className='text-red-500'>{error}</p>}
       {weather && (
         <div className='mt-4'>
-          <h2 className='text-2xl'>Weather in {weather.name}</h2>
-          <p>Temperature: {(weather.main.temp - 273.15).toFixed(2)} °C</p>
-          <p>Weather: {weather.weather[0].description}</p>
+          <h2 className='text-2xl'>Weather at ({city})</h2>
+          <p>
+            Temperature: {((weather.current.temp * 9) / 5 - 459.67).toFixed(2)}{" "}
+            °F
+          </p>
+          <p>Weather: {weather.current.weather[0].description}</p>
         </div>
       )}
     </div>
