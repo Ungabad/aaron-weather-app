@@ -6,7 +6,7 @@ import { getServerSession } from "next-auth";
 import authOptions from "../../../../lib/auth";
 import { ICity } from "../../../../models/City";
 
-export default async function GET(): Promise<NextResponse> {
+export async function GET(): Promise<NextResponse> {
   await dbConnect();
   const session = await getServerSession(authOptions);
   console.log(session);
