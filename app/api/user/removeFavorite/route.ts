@@ -6,7 +6,7 @@ import { getServerSession } from "next-auth";
 import authOptions from "../../../../lib/auth";
 import { ICity } from "../../../../models/City";
 
-export async function DELETE(req: NextRequest): Promise<NextResponse> {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   await dbConnect();
   const body = await req.json();
   const { cityId }: { cityId: number } = body;
