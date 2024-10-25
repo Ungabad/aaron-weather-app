@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@opennextjs/netlify": "^5.9",
     "mongoose": "^8.7.2",
     "next": "14.2.15",
     "next-auth": "^4.24.8",
