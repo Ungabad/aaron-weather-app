@@ -1,12 +1,14 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import CurrentWeather, { WeatherProps } from '../../components/CurrentWeather';
-import HourlyForecast, { ForecastProps } from '../../components/HourlyForecast';
+"use client";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import CurrentWeather, { WeatherProps } from "../../components/CurrentWeather";
+import HourlyForecast, { ForecastProps } from "../../components/HourlyForecast";
 
 export default function CityWeatherPage() {
   const [weather, setWeather] = useState<WeatherProps | null>(null); // State to store the current weather
-  const [forecast, setForecast] = useState<ForecastProps['forecast'] | null>(null); // State to store the forecast data
+  const [forecast, setForecast] = useState<ForecastProps["forecast"] | null>(
+    null
+  ); // State to store the forecast data
   const [error, setError] = useState<string | null>(null); // State to store error messages
   const { cityId } = useParams(); // Get cityId from the URL
 
@@ -17,7 +19,7 @@ export default function CityWeatherPage() {
         const response = await fetch(
           `https://api.openweathermap.org/data/2.5/weather?id=${cityId}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=metric`
         );
-        if (!response.ok) throw new Error('Failed to fetch weather data'); // Handle errors
+        if (!response.ok) throw new Error("Failed to fetch weather data"); // Handle errors
         const data: WeatherProps = await response.json();
         setWeather(data);
       } catch (error) {
@@ -35,7 +37,7 @@ export default function CityWeatherPage() {
         const response = await fetch(
           `https://api.openweathermap.org/data/2.5/forecast?id=${cityId}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=metric`
         );
-        if (!response.ok) throw new Error('Failed to fetch forecast data');
+        if (!response.ok) throw new Error("Failed to fetch forecast data");
         const data = await response.json();
         setForecast(data); // Set forecast data to state
       } catch (error) {
@@ -60,16 +62,19 @@ export default function CityWeatherPage() {
   return (
     <div className='min-h-screen flex flex-col items-center justify-center p-6 bg-black text-white'>
       {/* Back button */}
-      <a href='/' className='text-left w-full mb-4 text-white'>&larr; Home</a>
+      <a href='/' className='text-left w-full mb-4 text-white'>
+        &larr; Home
+      </a>
 
       {/* Weather Display Section - Using the CurrentWeather component */}
-      <CurrentWeather
-        {...weather}
-      />
+      <CurrentWeather {...weather} />
 
       {/* 12-Hour Forecast Section - Using the HourlyForecast component */}
       <h2 className='text-2xl font-bold mt-8'>12 Hour Forecast</h2>
-      <HourlyForecast forecast={forecast} convertToFahrenheit={convertToFahrenheit} />
+      <HourlyForecast
+        forecast={forecast}
+        convertToFahrenheit={convertToFahrenheit}
+      />
     </div>
   );
 }

@@ -1,7 +1,7 @@
-'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import cityList from '../../public/city.list.json'; // Import the city list
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import cityList from "../../public/city.list.json"; // Import the city list
 
 export interface City {
   id: number;
@@ -18,11 +18,14 @@ const cities: City[] = cityList as City[];
 
 interface AutocompleteSearchProps {
   onSelectCity?: (city: City) => void; // Pass selected city to the parent (Dashboard)
-  mode: 'home' | 'dashboard'; // Mode to determine behavior (home or dashboard)
+  mode: "home" | "dashboard"; // Mode to determine behavior (home or dashboard)
 }
 
-export default function AutocompleteSearch({ onSelectCity, mode }: AutocompleteSearchProps) {
-  const [city, setCity] = useState<string>(''); // State to store the user input
+export default function AutocompleteSearch({
+  onSelectCity,
+  mode,
+}: AutocompleteSearchProps) {
+  const [city, setCity] = useState<string>(""); // State to store the user input
   const [suggestions, setSuggestions] = useState<City[]>([]); // State to store the city suggestions
   const router = useRouter(); // Initialize the router for navigation
 
@@ -34,20 +37,20 @@ export default function AutocompleteSearch({ onSelectCity, mode }: AutocompleteS
     const filteredCities = cities.filter((cityItem: City) =>
       cityItem.name.toLowerCase().startsWith(query.toLowerCase())
     );
-
+    console.log(filteredCities);
     setSuggestions(filteredCities.slice(0, 5)); // Limit the suggestions to top 5
   };
 
   // Function to handle selecting a city from the suggestions
   const handleCitySelect = (city: City) => {
-    setCity(''); // Clear the search input
+    setCity(""); // Clear the search input
     setSuggestions([]); // Hide the suggestions after selection
 
     // Behavior based on the `mode` prop
-    if (mode === 'home') {
+    if (mode === "home") {
       // Navigate to the city's weather page on the home page
       router.push(`/location/${city.id}`);
-    } else if (mode === 'dashboard' && onSelectCity) {
+    } else if (mode === "dashboard" && onSelectCity) {
       // Add city to the favorites list on the dashboard
       onSelectCity(city);
     }
@@ -55,7 +58,7 @@ export default function AutocompleteSearch({ onSelectCity, mode }: AutocompleteS
 
   // Handle key press events
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && suggestions.length > 0) {
+    if (e.key === "Enter" && suggestions.length > 0) {
       handleCitySelect(suggestions[0]); // Select the first suggestion on Enter key press
     }
   };
@@ -86,7 +89,7 @@ export default function AutocompleteSearch({ onSelectCity, mode }: AutocompleteS
               onClick={() => handleCitySelect(suggestion)} // Add to favorite when city is selected
             >
               {suggestion.name}
-              {suggestion.state ? `, ${suggestion.state}` : ''},
+              {suggestion.state ? `, ${suggestion.state}` : ""},
               {suggestion.country}
               {/* Display city, state (if available), and country */}
             </li>
