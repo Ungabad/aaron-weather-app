@@ -17,6 +17,12 @@ export default function SignIn() {
     fetchProviders();
   }, []);
 
+  const handleSignIn = (providerId: string) => {
+    signIn(providerId, {
+      callbackUrl: "/dashboard",
+    });
+  };
+
   if (!providers) return <p>Loading...</p>;
 
   return (
@@ -26,10 +32,7 @@ export default function SignIn() {
           {Object.values(providers).map((provider) => (
             <button
               key={provider.name}
-              onClick={(e) => {
-                e.preventDefault();
-                signIn(provider.id);
-              }}
+              onClick={() => handleSignIn(provider.id)}
               className='p-4 bg-blue-600 text-white rounded-md'
             >
               Sign in with {provider.name}
