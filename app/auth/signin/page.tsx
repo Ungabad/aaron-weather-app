@@ -1,13 +1,13 @@
-'use client';
-import { getProviders, signIn, ClientSafeProvider } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+"use client";
+import { getProviders, signIn, ClientSafeProvider } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 interface SignInProps {
   providers: Record<string, ClientSafeProvider> | null;
 }
 
 export default function SignIn() {
-  const [providers, setProviders] = useState<SignInProps['providers']>(null);
+  const [providers, setProviders] = useState<SignInProps["providers"]>(null);
 
   useEffect(() => {
     const fetchProviders = async () => {
@@ -21,11 +21,22 @@ export default function SignIn() {
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-gray-100'>
-      {Object.values(providers).map((provider) => (
-        <button key={provider.name} onClick={(e) => {e.preventDefault(); signIn(provider.id)}} className='p-4 bg-blue-600 text-white rounded-md'>
-          Sign in with {provider.name}
-        </button>
-      ))}
+      {providers && (
+        <>
+          {Object.values(providers).map((provider) => (
+            <button
+              key={provider.name}
+              onClick={(e) => {
+                e.preventDefault();
+                signIn(provider.id);
+              }}
+              className='p-4 bg-blue-600 text-white rounded-md'
+            >
+              Sign in with {provider.name}
+            </button>
+          ))}
+        </>
+      )}
     </div>
   );
 }
