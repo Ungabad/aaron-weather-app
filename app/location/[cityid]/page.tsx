@@ -1,6 +1,6 @@
 // app/city/[cityId]/page.tsx
-import CurrentWeather, { WeatherProps } from "../../components/CurrentWeather";
-import HourlyForecast, { ForecastProps } from "../../components/HourlyForecast";
+import CurrentWeather from "../../components/CurrentWeather";
+import HourlyForecast from "../../components/HourlyForecast";
 import { notFound } from "next/navigation";
 
 // Server component to fetch data and render CityWeatherPage
