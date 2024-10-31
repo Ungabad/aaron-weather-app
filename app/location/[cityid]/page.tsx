@@ -16,10 +16,18 @@ export default function CityWeatherPage() {
   useEffect(() => {
     const fetchWeatherData = async () => {
       try {
+        console.log("City ID:", cityId);
+        console.log("API Key:", process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY);
+
         const response = await fetch(
           `https://api.openweathermap.org/data/2.5/weather?id=${cityId}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=metric`
         );
-        if (!response.ok) throw new Error("Failed to fetch weather data"); // Handle errors
+
+        if (!response.ok) {
+          console.error("Response Status:", response.status); // Log response status
+          throw new Error("Failed to fetch weather data");
+        }
+
         const data: WeatherProps = await response.json();
         setWeather(data);
       } catch (error) {
@@ -28,7 +36,7 @@ export default function CityWeatherPage() {
       }
     };
     fetchWeatherData(); // Fetch weather data on component mount
-  }, [cityId]); // Refetch data when cityId changes
+  }, [cityId]);
 
   // Fetch the 12-hour forecast
   useEffect(() => {
