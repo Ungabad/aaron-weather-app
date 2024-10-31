@@ -14,25 +14,23 @@ export default function Dashboard() {
       signIn();
       return;
     }
-  }, []);
+  }, [session, status]);
 
   // Load favorite cities from MongoDB when the component mounts
   useEffect(() => {
     async function fetchFavorites() {
-      if (status === "authenticated") {
-        try {
-          const response = await fetch("/api/user/favorites"); // Fetch user's favorites from MongoDB
-          if (!response.ok) throw new Error("Failed to fetch favorites");
-          const data = await response.json();
-          console.log(data);
-          setFavorites(data);
-        } catch (error) {
-          console.error("Error fetching favorite cities:", error);
-        }
+      try {
+        const response = await fetch("/api/user/favorites"); // Fetch user's favorites from MongoDB
+        if (!response.ok) throw new Error("Failed to fetch favorites");
+        const data = await response.json();
+        console.log(data);
+        setFavorites(data);
+      } catch (error) {
+        console.error("Error fetching favorite cities:", error);
       }
     }
     fetchFavorites();
-  }, [session]);
+  }, []);
 
   // Function to add a city to the favorites list
   const addCityToFavorites = async (city: City) => {
