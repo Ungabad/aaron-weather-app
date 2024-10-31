@@ -22,6 +22,7 @@ const authOptions: NextAuthOptions = {
 
         // Find the user with the provided email
         const user = await User.findOne({ email: credentials?.email });
+        console.log(user, credentials?.email);
         if (!user) return null; // Return null if no user is found
 
         // Check if the user's email has been verified
