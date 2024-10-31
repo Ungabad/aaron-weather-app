@@ -14,6 +14,8 @@ export default function CityWeatherPage() {
 
   // Fetch weather data for the city
   useEffect(() => {
+    if (!cityId) return; // Wait until cityId is defined
+
     const fetchWeatherData = async () => {
       try {
         console.log("City ID:", cityId);
