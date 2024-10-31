@@ -46,7 +46,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         { email },
         { token: updateToken, tokenExpiry: expiry }
       );
-      const verificationLink = `${process.env.NEXTAUTH_URL}/api/verify-email?token=${updateToken}&email=${newEmail}`;
+      const verificationLink = `${process.env.NEXT_PUBLIC_URL}/api/verify-email?token=${updateToken}&email=${newEmail}`;
       console.log("Verification link generated:", verificationLink);
       await sendgrid.send({
         to: newEmail,
