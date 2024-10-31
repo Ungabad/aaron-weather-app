@@ -10,25 +10,21 @@ export default function CityWeatherPage() {
     null
   ); // State to store the forecast data
   const [error, setError] = useState<string | null>(null); // State to store error messages
-  const { cityId } = useParams(); // Get cityId from the URL
+  const { Id } = useParams(); // Get cityId from the URL
+  console.log({ Id });
+
+  console.log("api.key", process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY);
 
   // Fetch weather data for the city
   useEffect(() => {
     const fetchWeatherData = async () => {
       try {
-        console.log("City ID:", cityId);
-        console.log("API Key:", process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY);
-
         const response = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?id=${cityId}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=metric`
+          `https://api.openweathermap.org/data/2.5/weather?id=${Id}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=metric`
         );
-
-        if (!response.ok) {
-          console.error("Response Status:", response.status); // Log response status
-          throw new Error("Failed to fetch weather data");
-        }
-
+        if (!response.ok) throw new Error("Failed to fetch weather data"); // Handle errors
         const data: WeatherProps = await response.json();
+        console.log(data);
         setWeather(data);
       } catch (error) {
         const err = error as Error;
@@ -36,17 +32,18 @@ export default function CityWeatherPage() {
       }
     };
     fetchWeatherData(); // Fetch weather data on component mount
-  }, [cityId]);
+  }, [Id]); // Refetch data when cityId changes
 
   // Fetch the 12-hour forecast
   useEffect(() => {
     const fetchForecastData = async () => {
       try {
         const response = await fetch(
-          `https://api.openweathermap.org/data/2.5/forecast?id=${cityId}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=metric`
+          `https://api.openweathermap.org/data/2.5/forecast?id=${Id}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=metric`
         );
         if (!response.ok) throw new Error("Failed to fetch forecast data");
         const data = await response.json();
+        console.log(data);
         setForecast(data); // Set forecast data to state
       } catch (error) {
         const err = error as Error;
@@ -54,7 +51,7 @@ export default function CityWeatherPage() {
       }
     };
     fetchForecastData(); // Fetch forecast data on component mount
-  }, [cityId]); // Refetch forecast data when cityId changes
+  }, [Id]); // Refetch forecast data when cityId changes
 
   // Helper function to convert Celsius to Fahrenheit
   const convertToFahrenheit = (temp: number) => (temp * 9) / 5 + 32;
