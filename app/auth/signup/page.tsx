@@ -88,7 +88,7 @@ export default function SignUp() {
         <input
           type='email'
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value.toLowerCase())}
           placeholder='Email'
           required
           className='mb-4 p-2 w-full border rounded-md'
