@@ -36,6 +36,7 @@ const authOptions: NextAuthOptions = {
           credentials?.password || "",
           user.password
         );
+        console.log(isValid, "isValid");
         if (!isValid) return null; // Deny access if password is incorrect
 
         // Return user object if credentials are valid and email is verified
