@@ -41,12 +41,13 @@ export default function UserProfile() {
   const handleSave = async () => {
     const isEmailUpdate =
       editingField === "email" && email !== session?.user?.email;
+    console.log(isEmailUpdate);
     const isPasswordUpdate = editingField === "password" && password;
 
     const endpoint = isPasswordUpdate
       ? "/api/reset-password"
       : isEmailUpdate
-      ? "/api/signup"
+      ? "/api/sign-up"
       : "/api/user/update-profile";
     const body = isPasswordUpdate
       ? { newPassword: password, currentPassword } // Only for password update
@@ -151,7 +152,7 @@ export default function UserProfile() {
             <input
               type='email'
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value.toLowerCase())}
               className='w-full text-black px-3 py-2 mt-1 border border-gray-300 rounded-md'
             />
           ) : (
