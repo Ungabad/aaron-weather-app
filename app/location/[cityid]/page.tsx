@@ -1,61 +1,87 @@
-// app/city/[cityId]/page.tsx
-import CurrentWeather from "../../components/CurrentWeather";
-import HourlyForecast from "../../components/HourlyForecast";
-import { notFound } from "next/navigation";
+"use client";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import CurrentWeather, { WeatherProps } from "../../components/CurrentWeather";
+import HourlyForecast, { ForecastProps } from "../../components/HourlyForecast";
 
-// Server component to fetch data and render CityWeatherPage
-async function fetchWeatherData(cityId: string) {
-  const weatherRes = await fetch(
-    `https://api.openweathermap.org/data/2.5/weather?id=${cityId}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=metric`
-  );
-  if (!weatherRes.ok) {
-    console.error("Failed to fetch weather data");
-    return null;
+export default function CityWeatherPage() {
+  const [weather, setWeather] = useState<WeatherProps | null>(null); // State to store the current weather
+  const [forecast, setForecast] = useState<ForecastProps["forecast"] | null>(
+    null
+  ); // State to store the forecast data
+  const [error, setError] = useState<string | null>(null); // State to store error messages
+  const { cityId } = useParams(); // Get cityId from the URL
+
+  // Fetch weather data for the city
+  useEffect(() => {
+    const fetchWeatherData = async () => {
+      try {
+        console.log("City ID:", cityId);
+        console.log("API Key:", process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY);
+
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?id=${cityId}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=metric`
+        );
+
+        if (!response.ok) {
+          console.error("Response Status:", response.status); // Log response status
+          throw new Error("Failed to fetch weather data");
+        }
+
+        const data: WeatherProps = await response.json();
+        setWeather(data);
+      } catch (error) {
+        const err = error as Error;
+        setError(err.message); // Set the error message in case of failure
+      }
+    };
+    fetchWeatherData(); // Fetch weather data on component mount
+  }, [cityId]);
+
+  // Fetch the 12-hour forecast
+  useEffect(() => {
+    const fetchForecastData = async () => {
+      try {
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/forecast?id=${cityId}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=metric`
+        );
+        if (!response.ok) throw new Error("Failed to fetch forecast data");
+        const data = await response.json();
+        setForecast(data); // Set forecast data to state
+      } catch (error) {
+        const err = error as Error;
+        setError(err.message); // Set the error message in case of failure
+      }
+    };
+    fetchForecastData(); // Fetch forecast data on component mount
+  }, [cityId]); // Refetch forecast data when cityId changes
+
+  // Helper function to convert Celsius to Fahrenheit
+  const convertToFahrenheit = (temp: number) => (temp * 9) / 5 + 32;
+
+  if (error) {
+    return <p className='text-red-500'>Error: {error}</p>; // Display error message if any
   }
-  return weatherRes.json();
-}
 
-async function fetchForecastData(cityId: string) {
-  const forecastRes = await fetch(
-    `https://api.openweathermap.org/data/2.5/forecast?id=${cityId}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=metric`
-  );
-  if (!forecastRes.ok) {
-    console.error("Failed to fetch forecast data");
-    return null;
-  }
-  return forecastRes.json();
-}
-
-export default async function CityWeatherPage({
-  params,
-}: {
-  params: { cityId: string };
-}) {
-  const { cityId } = params;
-
-  // Fetch weather and forecast data
-  const weather = await fetchWeatherData(cityId);
-  const forecast = await fetchForecastData(cityId);
-
-  // Handle cases where data fetching fails
   if (!weather || !forecast) {
-    notFound();
+    return <p>Loading weather data...</p>; // Display loading state while fetching data
   }
 
   return (
     <div className='min-h-screen flex flex-col items-center justify-center p-6 bg-black text-white'>
+      {/* Back button */}
       <a href='/' className='text-left w-full mb-4 text-white'>
         &larr; Home
       </a>
 
-      {/* Render the CurrentWeather and HourlyForecast components */}
+      {/* Weather Display Section - Using the CurrentWeather component */}
       <CurrentWeather {...weather} />
+
+      {/* 12-Hour Forecast Section - Using the HourlyForecast component */}
       <h2 className='text-2xl font-bold mt-8'>12 Hour Forecast</h2>
       <HourlyForecast
         forecast={forecast}
-        convertToFahrenheit={function (temp: number): number {
-          throw new Error("Function not implemented.");
-        }}
+        convertToFahrenheit={convertToFahrenheit}
       />
     </div>
   );
