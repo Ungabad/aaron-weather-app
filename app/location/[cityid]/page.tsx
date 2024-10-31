@@ -1,40 +1,55 @@
-// pages/city/[cityId].tsx
-"use client";
+// app/city/[cityId]/page.tsx
 import CurrentWeather, { WeatherProps } from "../../components/CurrentWeather";
 import HourlyForecast, { ForecastProps } from "../../components/HourlyForecast";
+import { notFound } from "next/navigation";
 
-type CityWeatherPageProps = {
-  weather: WeatherProps | null;
-  forecast: ForecastProps["forecast"] | null;
-  error: string | null;
-};
-
-export default function CityWeatherPage({
-  weather,
-  forecast,
-  error,
-}: CityWeatherPageProps) {
-  // If there's an error, show it to the user
-  if (error) {
-    return <p className='text-red-500'>Error: {error}</p>;
+// Server component to fetch data and render CityWeatherPage
+async function fetchWeatherData(cityId: string) {
+  const weatherRes = await fetch(
+    `https://api.openweathermap.org/data/2.5/weather?id=${cityId}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=metric`
+  );
+  if (!weatherRes.ok) {
+    console.error("Failed to fetch weather data");
+    return null;
   }
+  return weatherRes.json();
+}
 
-  // Show loading state if weather or forecast is missing
+async function fetchForecastData(cityId: string) {
+  const forecastRes = await fetch(
+    `https://api.openweathermap.org/data/2.5/forecast?id=${cityId}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=metric`
+  );
+  if (!forecastRes.ok) {
+    console.error("Failed to fetch forecast data");
+    return null;
+  }
+  return forecastRes.json();
+}
+
+export default async function CityWeatherPage({
+  params,
+}: {
+  params: { cityId: string };
+}) {
+  const { cityId } = params;
+
+  // Fetch weather and forecast data
+  const weather = await fetchWeatherData(cityId);
+  const forecast = await fetchForecastData(cityId);
+
+  // Handle cases where data fetching fails
   if (!weather || !forecast) {
-    return <p>Loading weather data...</p>;
+    notFound();
   }
 
   return (
     <div className='min-h-screen flex flex-col items-center justify-center p-6 bg-black text-white'>
-      {/* Back button */}
       <a href='/' className='text-left w-full mb-4 text-white'>
         &larr; Home
       </a>
 
-      {/* Weather Display Section - Using the CurrentWeather component */}
+      {/* Render the CurrentWeather and HourlyForecast components */}
       <CurrentWeather {...weather} />
-
-      {/* 12-Hour Forecast Section - Using the HourlyForecast component */}
       <h2 className='text-2xl font-bold mt-8'>12 Hour Forecast</h2>
       <HourlyForecast
         forecast={forecast}
@@ -44,38 +59,4 @@ export default function CityWeatherPage({
       />
     </div>
   );
-}
-
-// Fetch data server-side with getServerSideProps
-export async function getServerSideProps(context: { params: { cityId: any } }) {
-  const { cityId } = context.params; // Access the cityId parameter from the URL
-  let weather = null;
-  let forecast = null;
-  let error = null;
-
-  try {
-    // Fetch current weather data
-    const weatherRes = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?id=${cityId}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=metric`
-    );
-    if (!weatherRes.ok) throw new Error("Failed to fetch weather data");
-    weather = await weatherRes.json();
-
-    // Fetch forecast data
-    const forecastRes = await fetch(
-      `https://api.openweathermap.org/data/2.5/forecast?id=${cityId}&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=metric`
-    );
-    if (!forecastRes.ok) throw new Error("Failed to fetch forecast data");
-    forecast = await forecastRes.json();
-  } catch (err) {
-    error = (err as Error).message;
-  }
-
-  return {
-    props: {
-      weather,
-      forecast,
-      error,
-    },
-  };
 }
